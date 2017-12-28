@@ -16,7 +16,7 @@ public class Sort_time {
      */
     public static void main(String[] args) {
         int[] array = rndArray(100);
-        int [] heapArray = heapSort(array);
+        heapSort(array);
     }
 
     /**
@@ -147,7 +147,7 @@ public class Sort_time {
      * @param array pole k setřízení
      * @return nové setřízené pole
      */
-    public static int[] heapSort(int []array){
+    public static void heapSort(int []array){
         int []heap = new int [array.length + 1];
         for (int i = 1; i < heap.length; i++){
             heap [i] = array[i-1];
@@ -156,10 +156,12 @@ public class Sort_time {
         for (int i = heap.length-1; i > 1; i--){
             int a = heap[1];
             heap[1] = heap[i];
-            heap[i] = a;
+            array[i-1] = a;
             fixHeapDown(heap, i);
-        }
-        return heap;    
+            if (i == 2){
+                array[0] = heap[2];
+            }
+        }           
     }
     /**
      * oprava haldy nahoru
@@ -177,13 +179,13 @@ public class Sort_time {
     /**
      * oprava haldy dolů
      * @param heap vstupní halda (pole)
-     * @param i aktuální délka nesetřízené haldy
+     * @param i aktuální délka nesetříděné haldy
      */
     public static void fixHeapDown(int []heap, int i){
         int j = 1;  //index rodiče
         while (2*j <= i){
             int k = 2*j;    //index potomka
-            if ((k < i) && (heap[k] > heap[k+1])){
+            if ((k <= i) && (heap[k] > heap[k+1])){
                 k++;                
             }
             if (heap[k] < heap[j]){
