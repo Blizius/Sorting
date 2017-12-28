@@ -5,6 +5,8 @@
  */
 package sort_time;
 
+import static java.lang.Math.pow;
+
 /**
  *
  * @author Blizius
@@ -15,12 +17,42 @@ public class Sort_time {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        int[] array = rndArray(100);
-        heapSort(array);
+        double [] randomInsertSortTime = new double [7];
+        double [] randomInsertBinarySortTime = new double [7];
+        double [] randomQuickSortTime = new double [7];
+        double [] randomHeapSortTime = new double [7];
+        double [] nearlyRandomInsertSortTime = new double [7];
+        double [] nearlyRandomInsertBinarySortTime = new double [7];
+        double [] nearlyRandomQuickSortTime = new double [7];
+        double [] nearlyRandomHeapSortTime = new double [7];
+        double [] sortedInsertSortTime = new double [7];
+        double [] sortedInsertBinarySortTime = new double [7];
+        double [] sortedQuickSortTime = new double [7];
+        double [] sortedHeapSortTime = new double [7];
+        
+        for (int k = 2; k < 9; k++){                        
+            randomInsertSortTime [k-2] = SortTime(k,1,1);
+            nearlyRandomInsertSortTime [k-2] = SortTime(k,2,1);
+            sortedInsertSortTime [k-2] = SortTime(k,3,1);
+            randomInsertBinarySortTime [k-2] = SortTime(k,1,2);
+            nearlyRandomInsertBinarySortTime [k-2] = SortTime(k,2,2);
+            sortedInsertBinarySortTime [k-2] = SortTime(k,3,2);
+            randomQuickSortTime [k-2] = SortTime(k,1,3);
+            nearlyRandomQuickSortTime [k-2] = SortTime(k,2,3);
+            sortedQuickSortTime [k-2] = SortTime(k,3,3);
+            randomHeapSortTime [k-2] = SortTime(k,1,4);
+            nearlyRandomHeapSortTime [k-2] = SortTime(k,2,4);
+            sortedHeapSortTime [k-2] = SortTime(k,3,4);
+            System.out.format("%f %f %f %f %f %f %f %f %f %f %f %f\n",randomInsertSortTime [k-2],nearlyRandomInsertSortTime [k-2],
+            sortedInsertSortTime [k-2], randomInsertBinarySortTime [k-2], nearlyRandomInsertBinarySortTime [k-2],
+            sortedInsertBinarySortTime [k-2], randomQuickSortTime [k-2], nearlyRandomQuickSortTime [k-2], 
+            sortedQuickSortTime [k-2], randomHeapSortTime [k-2], nearlyRandomHeapSortTime [k-2],
+            sortedHeapSortTime [k-2]);
+        }        
     }
 
     /**
-     * generování pole
+     * generování náhodného pole
      *
      * @param length délka pole
      * @return náhodné pole intů
@@ -34,7 +66,7 @@ public class Sort_time {
     }
 
     /**
-     * generování pole
+     * generování seřazeného pole
      *
      * @param length délka pole
      * @return seřazené pole intů
@@ -49,7 +81,7 @@ public class Sort_time {
     }
 
     /**
-     * generování pole
+     * generování 2% náhodného pole
      *
      * @param length délka pole
      * @return téměř seřazené pole intů (2 % prvků náhodné)
@@ -145,7 +177,6 @@ public class Sort_time {
     /**
      * třídící funkce, algoritmus Heap Sort
      * @param array pole k setřízení
-     * @return nové setřízené pole
      */
     public static void heapSort(int []array){
         int []heap = new int [array.length + 1];
@@ -153,10 +184,9 @@ public class Sort_time {
             heap [i] = array[i-1];
             fixHeapUp(heap, i);
         }
-        for (int i = heap.length-1; i > 1; i--){
-            int a = heap[1];
+        for (int i = heap.length-1; i > 1; i--){              
+            array[i-1] = heap[1];
             heap[1] = heap[i];
-            array[i-1] = a;
             fixHeapDown(heap, i);
             if (i == 2){
                 array[0] = heap[2];
@@ -183,7 +213,7 @@ public class Sort_time {
      */
     public static void fixHeapDown(int []heap, int i){
         int j = 1;  //index rodiče
-        while (2*j <= i){
+        while (2*j < i){
             int k = 2*j;    //index potomka
             if ((k <= i) && (heap[k] > heap[k+1])){
                 k++;                
@@ -198,5 +228,85 @@ public class Sort_time {
             }
             j = k;            
         }        
+    }
+    /**
+     * měření časů jednotlivých třízení jednotlivých typů polí pro různé délky
+     * @param k mocnina desíti, pro délku pole a rozdělení na krátké a dlouhé pole
+     * @param type typ pole, zda se bude generovat náhodné - 1, téměř náhodné - 2
+     *  a setřízené - 3
+     * @param algor typ algoritmu, který se použije. 1 - Insert Sort, 2- Insert Binary Sort,
+     * 3 - QuickSort, 4 - Heap Sort
+     * @return hodnotu průměrného času třídění daného algoritmu nad danýmc typem pole pro danou délku pole
+     */
+    public static double SortTime(int k, int type, int algor){
+        int length = (int)pow(10,k);
+        if (k < 5){
+            double time = 0;
+            for(int i = 0; i < 50; i++){
+                int[] array = new int [length];
+                if (type == 1)
+                    array = rndArray(length);
+                else if (type == 2)
+                    array = almostSortedArray(length);
+                else
+                    array = sortedArray(length);
+                
+                if (algor == 1){
+                    double t0 = System.nanoTime();
+                    insertSort(array);
+                    time += System.nanoTime() - t0;
+                }
+                else if (algor == 2){
+                    double t0 = System.nanoTime();
+                    insertBinarySort(array);
+                    time += System.nanoTime() - t0;
+                }
+                else if (algor == 3){
+                    double t0 = System.nanoTime();
+                    quickSort(array, 0, length-1);
+                    time += System.nanoTime() - t0;
+                }
+                else {
+                    double t0 = System.nanoTime();
+                    heapSort(array);
+                    time += System.nanoTime() - t0;
+                }
+            }
+            return time/50;
+        }
+        else{
+            double time = 0;
+            for(int i = 0; i < 3; i++){
+                int[] array = new int [length];
+                if (type == 1)
+                    array = rndArray(length);
+                else if (type == 2)
+                    array = almostSortedArray(length);
+                else
+                    array = sortedArray(length);
+                
+                if (algor == 1){
+                    double t0 = System.nanoTime();
+                    insertSort(array);
+                    time += System.nanoTime() - t0;
+                }
+                else if (algor == 2){
+                    double t0 = System.nanoTime();
+                    insertBinarySort(array);
+                    time += System.nanoTime() - t0;
+                }
+                else if (algor == 3){
+                    double t0 = System.nanoTime();
+                    quickSort(array, 0, length-1);
+                    time += System.nanoTime() - t0;
+                }
+                else {
+                    double t0 = System.nanoTime();
+                    heapSort(array);
+                    time += System.nanoTime() - t0;
+                }
+            }
+            return time/3;
+        } 
     }
 }
